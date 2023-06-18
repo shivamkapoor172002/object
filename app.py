@@ -62,12 +62,15 @@ if input_type == "Image URL":
             for j in range(num_cols):
                 idx = i * num_cols + j
                 if idx < num_images:
+                    # Display the cropped image
                     cols[j].image(cropped_images[idx], caption=filenames[idx], use_column_width=True)
 
                     # Add a download button for each cropped image
                     buffered = BytesIO()
                     cropped_images[idx].save(buffered, format="PNG")
-                    st.download_button("Download", data=buffered.getvalue(), file_name=filenames[idx])
+
+                    # Place the download button below the cropped image
+                    cols[j].download_button("Download", data=buffered.getvalue(), file_name=filenames[idx])
 
         # Display the input image
         st.image(image, caption="Input Image", use_column_width=True)
@@ -120,12 +123,15 @@ else:
             for j in range(num_cols):
                 idx = i * num_cols + j
                 if idx < num_images:
+                    # Display the cropped image
                     cols[j].image(cropped_images[idx], caption=filenames[idx], use_column_width=True)
 
                     # Add a download button for each cropped image
                     buffered = BytesIO()
                     cropped_images[idx].save(buffered, format="PNG")
-                    st.download_button("Download", data=buffered.getvalue(), file_name=filenames[idx])
+
+                    # Place the download button below the cropped image
+                    cols[j].download_button("Download", data=buffered.getvalue(), file_name=filenames[idx])
 
         # Display the input image
         st.image(image, caption="Input Image", use_column_width=True)

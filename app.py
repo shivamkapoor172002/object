@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import torch
 import requests
+from io import BytesIO
 from transformers import YolosImageProcessor, YolosForObjectDetection
 
 # Load the YOLO model and image processor
@@ -56,9 +57,18 @@ if input_type == "Image URL":
         # Display the cropped images and add a download link for each image
         for cropped_image, cropped_filename in zip(cropped_images, cropped_filenames):
             st.image(cropped_image, caption=object_name, use_column_width=True)
+            
+            # Save the cropped image to BytesIO buffer
+            buffer = BytesIO()
+            cropped_image.save(buffer, format="PNG")
+            
+            # Reset the buffer position
+            buffer.seek(0)
+            
+            # Create the download link
             st.download_button(
                 label="Download",
-                data=cropped_image.save(None, "PNG"),
+                data=buffer,
                 file_name=cropped_filename,
             )
 
@@ -108,9 +118,18 @@ else:
         # Display the cropped images and add a download link for each image
         for cropped_image, cropped_filename in zip(cropped_images, cropped_filenames):
             st.image(cropped_image, caption=object_name, use_column_width=True)
+            
+            # Save the cropped image to BytesIO buffer
+            buffer = BytesIO()
+            cropped_image.save(buffer, format="PNG")
+            
+            # Reset the buffer position
+            buffer.seek(0)
+            
+            # Create the download link
             st.download_button(
                 label="Download",
-                data=cropped_image.save(None, "PNG"),
+                data=buffer,
                 file_name=cropped_filename,
             )
 

@@ -56,11 +56,15 @@ if input_type == "Image URL":
 
         # Display the cropped images and add a download link for each image
         for cropped_image, cropped_filename in zip(cropped_images, cropped_filenames):
-            st.image(cropped_image, caption=object_name, use_column_width=True)
+            # Resize the cropped image to a smaller size
+            resized_cropped_image = cropped_image.resize((200, 200))
+            
+            # Display the resized image
+            st.image(resized_cropped_image, caption=object_name, use_column_width=True)
             
             # Save the cropped image to BytesIO buffer
             buffer = BytesIO()
-            cropped_image.save(buffer, format="PNG")
+            resized_cropped_image.save(buffer, format="PNG")
             
             # Reset the buffer position
             buffer.seek(0)
@@ -117,11 +121,15 @@ else:
 
         # Display the cropped images and add a download link for each image
         for cropped_image, cropped_filename in zip(cropped_images, cropped_filenames):
-            st.image(cropped_image, caption=object_name, use_column_width=True)
+            # Resize the cropped image to a smaller size
+            resized_cropped_image = cropped_image.resize((200, 200))
+            
+            # Display the resized image
+            st.image(resized_cropped_image, caption=object_name, use_column_width=True)
             
             # Save the cropped image to BytesIO buffer
             buffer = BytesIO()
-            cropped_image.save(buffer, format="PNG")
+            resized_cropped_image.save(buffer, format="PNG")
             
             # Reset the buffer position
             buffer.seek(0)

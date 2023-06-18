@@ -2,8 +2,6 @@ import streamlit as st
 from PIL import Image
 import torch
 import requests
-import base64
-from io import BytesIO
 from transformers import YolosImageProcessor, YolosForObjectDetection
 
 # Load the YOLO model and image processor
@@ -35,9 +33,8 @@ if input_type == "Image URL":
         target_sizes = torch.tensor([image.size[::-1]])
         results = image_processor.post_process_object_detection(outputs, threshold=0.9, target_sizes=target_sizes)[0]
 
-        # Create a list to store the cropped images and their filenames
+        # Create a list to store the cropped images
         cropped_images = []
-        filenames = []
 
         # Display the detected objects and their bounding boxes
         for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
@@ -50,18 +47,6 @@ if input_type == "Image URL":
             # Crop the detected object from the image
             cropped_image = image.crop(box)
             cropped_images.append(cropped_image)
-
-            # Generate a unique filename for each cropped image
-            filename = f"{object_name}_{score.item()}.png"
-            filenames.append(filename)
-
-            # Add a download button for each cropped image
-            st.download_button(
-                label="Download",
-                data=base64.b64encode(image_to_bytes(cropped_image)).decode(),
-                file_name=filename,
-                mime="image/png"
-            )
 
         # Display the cropped images in a grid layout
         num_cols = 3
@@ -99,9 +84,8 @@ else:
         target_sizes = torch.tensor([image.size[::-1]])
         results = image_processor.post_process_object_detection(outputs, threshold=0.9, target_sizes=target_sizes)[0]
 
-        # Create a list to store the cropped images and their filenames
+        # Create a list to store the cropped images
         cropped_images = []
-        filenames = []
 
         # Display the detected objects and their bounding boxes
         for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
@@ -114,18 +98,6 @@ else:
             # Crop the detected object from the image
             cropped_image = image.crop(box)
             cropped_images.append(cropped_image)
-
-            # Generate a unique filename for each cropped image
-            filename = f"{object_name}_{score.item()}.png"
-            filenames.append(filename)
-
-            # Add a download button for each cropped image
-            st.download_button(
-                label="Download",
-                data=base64.b64encode(image_to_bytes(cropped_image)).decode(),
-                file_name=filename,
-                mime="image/png"
-            )
 
         # Display the cropped images in a grid layout
         num_cols = 3

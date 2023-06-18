@@ -68,7 +68,7 @@ if input_type == "Image URL":
 
         # Display the input image with a download arrow option
         st.image(image, caption="Input Image", use_column_width=True)
-        st.image.download_button("Download Input Image", image, "input_image.png")
+        st.download_button("Download Input Image", image.resize((image.width, image.height)), "input_image.png")
 
         # Add the download option to the sidebar
         if st.sidebar.button("Download Cropped Images"):
@@ -124,7 +124,7 @@ else:
 
         # Display the input image with a download arrow option
         st.image(image, caption="Input Image", use_column_width=True)
-        st.image.download_button("Download Input Image", image, "input_image.png")
+        st.download_button("Download Input Image", image.resize((image.width, image.height)), "input_image.png")
 
         # Add the download option to the sidebar
         if st.sidebar.button("Download Cropped Images"):

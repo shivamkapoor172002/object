@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import torch
 import requests
+from io import BytesIO
 from transformers import YolosImageProcessor, YolosForObjectDetection
 
 # Load the YOLO model and image processor
@@ -33,8 +34,9 @@ if input_type == "Image URL":
         target_sizes = torch.tensor([image.size[::-1]])
         results = image_processor.post_process_object_detection(outputs, threshold=0.9, target_sizes=target_sizes)[0]
 
-        # Create a list to store the cropped images
+        # Create a list to store the cropped images and their filenames
         cropped_images = []
+        filenames = []
 
         # Display the detected objects and their bounding boxes
         for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
@@ -47,8 +49,9 @@ if input_type == "Image URL":
             # Crop the detected object from the image
             cropped_image = image.crop(box)
             cropped_images.append(cropped_image)
+            filenames.append(f"{object_name}.png")
 
-        # Display the cropped images in a grid layout
+        # Display the cropped images in a grid layout with download buttons
         num_cols = 3
         num_images = len(cropped_images)
         num_rows = (num_images + num_cols - 1) // num_cols
@@ -59,7 +62,12 @@ if input_type == "Image URL":
             for j in range(num_cols):
                 idx = i * num_cols + j
                 if idx < num_images:
-                    cols[j].image(cropped_images[idx], caption=object_name, use_column_width=True)
+                    cols[j].image(cropped_images[idx], caption=filenames[idx], use_column_width=True)
+
+                    # Add a download button for each cropped image
+                    buffered = BytesIO()
+                    cropped_images[idx].save(buffered, format="PNG")
+                    st.download_button("Download", data=buffered.getvalue(), file_name=filenames[idx])
 
         # Display the input image
         st.image(image, caption="Input Image", use_column_width=True)
@@ -84,8 +92,9 @@ else:
         target_sizes = torch.tensor([image.size[::-1]])
         results = image_processor.post_process_object_detection(outputs, threshold=0.9, target_sizes=target_sizes)[0]
 
-        # Create a list to store the cropped images
+        # Create a list to store the cropped images and their filenames
         cropped_images = []
+        filenames = []
 
         # Display the detected objects and their bounding boxes
         for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
@@ -98,8 +107,9 @@ else:
             # Crop the detected object from the image
             cropped_image = image.crop(box)
             cropped_images.append(cropped_image)
+            filenames.append(f"{object_name}.png")
 
-        # Display the cropped images in a grid layout
+        # Display the cropped images in a grid layout with download buttons
         num_cols = 3
         num_images = len(cropped_images)
         num_rows = (num_images + num_cols - 1) // num_cols
@@ -110,7 +120,12 @@ else:
             for j in range(num_cols):
                 idx = i * num_cols + j
                 if idx < num_images:
-                    cols[j].image(cropped_images[idx], caption=object_name, use_column_width=True)
+                    cols[j].image(cropped_images[idx], caption=filenames[idx], use_column_width=True)
+
+                    # Add a download button for each cropped image
+                    buffered = BytesIO()
+                    cropped_images[idx].save(buffered, format="PNG")
+                    st.download_button("Download", data=buffered.getvalue(), file_name=filenames[idx])
 
         # Display the input image
         st.image(image, caption="Input Image", use_column_width=True)

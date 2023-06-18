@@ -2,7 +2,6 @@ import streamlit as st
 from PIL import Image
 import torch
 import requests
-from io import BytesIO
 from transformers import YolosImageProcessor, YolosForObjectDetection
 
 # Load the YOLO model and image processor
@@ -14,6 +13,11 @@ st.title("Object Detection with YOLO")
 
 # Display a radio button to choose the input type
 input_type = st.radio("Select input type", ("Image URL", "File Upload"))
+
+# Function to download the cropped images
+def download_images(cropped_images):
+    for i, cropped_image in enumerate(cropped_images):
+        cropped_image.save(f"cropped_image_{i}.png")
 
 if input_type == "Image URL":
     # Display an input text box for the image URL
@@ -34,9 +38,8 @@ if input_type == "Image URL":
         target_sizes = torch.tensor([image.size[::-1]])
         results = image_processor.post_process_object_detection(outputs, threshold=0.9, target_sizes=target_sizes)[0]
 
-        # Create a list to store the cropped images and their filenames
+        # Create a list to store the cropped images
         cropped_images = []
-        cropped_filenames = []
 
         # Display the detected objects and their bounding boxes
         for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
@@ -50,34 +53,25 @@ if input_type == "Image URL":
             cropped_image = image.crop(box)
             cropped_images.append(cropped_image)
 
-            # Generate a unique filename for each cropped image
-            cropped_filename = f"cropped_{object_name}.png"
-            cropped_filenames.append(cropped_filename)
+        # Display the cropped images in a grid layout
+        num_cols = 3
+        num_images = len(cropped_images)
+        num_rows = (num_images + num_cols - 1) // num_cols
 
-        # Display the cropped images and add a download link for each image
-        for cropped_image, cropped_filename in zip(cropped_images, cropped_filenames):
-            # Resize the cropped image to a smaller size
-            resized_cropped_image = cropped_image.resize((200, 200))
-            
-            # Display the resized image
-            st.image(resized_cropped_image, caption=object_name, use_column_width=True)
-            
-            # Save the cropped image to BytesIO buffer
-            buffer = BytesIO()
-            resized_cropped_image.save(buffer, format="PNG")
-            
-            # Reset the buffer position
-            buffer.seek(0)
-            
-            # Create the download link
-            st.download_button(
-                label="Download",
-                data=buffer,
-                file_name=cropped_filename,
-            )
+        cols = st.columns(num_cols)
+
+        for i in range(num_rows):
+            for j in range(num_cols):
+                idx = i * num_cols + j
+                if idx < num_images:
+                    cols[j].image(cropped_images[idx], caption=object_name, use_column_width=True)
 
         # Display the input image
         st.image(image, caption="Input Image", use_column_width=True)
+
+        # Add the download option to the sidebar
+        if st.sidebar.button("Download Cropped Images"):
+            download_images(cropped_images)
 
 else:
     # Display an input file uploader for the image
@@ -99,9 +93,8 @@ else:
         target_sizes = torch.tensor([image.size[::-1]])
         results = image_processor.post_process_object_detection(outputs, threshold=0.9, target_sizes=target_sizes)[0]
 
-        # Create a list to store the cropped images and their filenames
+        # Create a list to store the cropped images
         cropped_images = []
-        cropped_filenames = []
 
         # Display the detected objects and their bounding boxes
         for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
@@ -115,31 +108,22 @@ else:
             cropped_image = image.crop(box)
             cropped_images.append(cropped_image)
 
-            # Generate a unique filename for each cropped image
-            cropped_filename = f"cropped_{object_name}.png"
-            cropped_filenames.append(cropped_filename)
+        # Display the cropped images in a grid layout
+        num_cols = 3
+        num_images = len(cropped_images)
+        num_rows = (num_images + num_cols - 1) // num_cols
 
-        # Display the cropped images and add a download link for each image
-        for cropped_image, cropped_filename in zip(cropped_images, cropped_filenames):
-            # Resize the cropped image to a smaller size
-            resized_cropped_image = cropped_image.resize((200, 200))
-            
-            # Display the resized image
-            st.image(resized_cropped_image, caption=object_name, use_column_width=True)
-            
-            # Save the cropped image to BytesIO buffer
-            buffer = BytesIO()
-            resized_cropped_image.save(buffer, format="PNG")
-            
-            # Reset the buffer position
-            buffer.seek(0)
-            
-            # Create the download link
-            st.download_button(
-                label="Download",
-                data=buffer,
-                file_name=cropped_filename,
-            )
+        cols = st.columns(num_cols)
+
+        for i in range(num_rows):
+            for j in range(num_cols):
+                idx = i * num_cols + j
+                if idx < num_images:
+                    cols[j].image(cropped_images[idx], caption=object_name, use_column_width=True)
 
         # Display the input image
         st.image(image, caption="Input Image", use_column_width=True)
+
+        # Add the download option to the sidebar
+        if st.sidebar.button("Download Cropped Images"):
+            download_images(cropped_images)

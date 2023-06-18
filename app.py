@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import torch
 import requests
+import base64
 from io import BytesIO
 from transformers import YolosImageProcessor, YolosForObjectDetection
 
@@ -50,9 +51,17 @@ if input_type == "Image URL":
             cropped_image = image.crop(box)
             cropped_images.append(cropped_image)
 
-            # Generate a unique filename for the cropped image
+            # Generate a unique filename for each cropped image
             filename = f"{object_name}_{score.item()}.png"
             filenames.append(filename)
+
+            # Add a download button for each cropped image
+            st.download_button(
+                label="Download",
+                data=base64.b64encode(image_to_bytes(cropped_image)).decode(),
+                file_name=filename,
+                mime="image/png"
+            )
 
         # Display the cropped images in a grid layout
         num_cols = 3
@@ -69,18 +78,6 @@ if input_type == "Image URL":
 
         # Display the input image
         st.image(image, caption="Input Image", use_column_width=True)
-
-        # Add a download button for the cropped images
-        if st.button("Download Cropped Images"):
-            for cropped_image, filename in zip(cropped_images, filenames):
-                # Convert the image to bytes
-                buffered = BytesIO()
-                cropped_image.save(buffered, format="PNG")
-                img_bytes = buffered.getvalue()
-
-                # Create a download link
-                href = f'<a href="data:application/octet-stream;base64,{b64encode(img_bytes).decode()}" download="{filename}">Download {filename}</a>'
-                st.markdown(href, unsafe_allow_html=True)
 
 else:
     # Display an input file uploader for the image
@@ -118,9 +115,17 @@ else:
             cropped_image = image.crop(box)
             cropped_images.append(cropped_image)
 
-            # Generate a unique filename for the cropped image
+            # Generate a unique filename for each cropped image
             filename = f"{object_name}_{score.item()}.png"
             filenames.append(filename)
+
+            # Add a download button for each cropped image
+            st.download_button(
+                label="Download",
+                data=base64.b64encode(image_to_bytes(cropped_image)).decode(),
+                file_name=filename,
+                mime="image/png"
+            )
 
         # Display the cropped images in a grid layout
         num_cols = 3
@@ -137,15 +142,3 @@ else:
 
         # Display the input image
         st.image(image, caption="Input Image", use_column_width=True)
-
-        # Add a download button for the cropped images
-        if st.button("Download Cropped Images"):
-            for cropped_image, filename in zip(cropped_images, filenames):
-                # Convert the image to bytes
-                buffered = BytesIO()
-                cropped_image.save(buffered, format="PNG")
-                img_bytes = buffered.getvalue()
-
-                # Create a download link
-                href = f'<a href="data:application/octet-stream;base64,{b64encode(img_bytes).decode()}" download="{filename}">Download {filename}</a>'
-                st.markdown(href, unsafe_allow_html=True)
